@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -772,7 +771,7 @@ fun GradingDialog(ui: GradingUi, meta: QuranPageMeta, onReview: () -> Unit, onNe
                     ) { Text("Simpan & Lanjut Halaman Berikutnya", fontWeight = FontWeight.Bold) }
                     TextButton(onClick = onReview) { Text("Tinjau Ulang Halaman") }
                 }
-                if (r.compositeScore >= 75) ConfettiBurst(Modifier.matchParentSize())
+                if (r.compositeScore >= 75) ConfettiBurst(Modifier.fillMaxSize())
             }
         }
     }
