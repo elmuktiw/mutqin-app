@@ -1,0 +1,93 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Tes logika murni (antrean, rentang, SRS, pemetaan ayat). Berjalan paralel; tidak menghalangi build APK.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Unit test
+        run: gradle :app:testDebugUnitTest --stacktrace
+      - name: Unggah laporan tes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HAS_KEYSTORE: ${{ secrets.MUTQIN_KEYSTORE_BASE64 != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pastikan aset offline lengkap
+        run: |
+          pages=$(ls app/src/main/assets/pages 2>/dev/null | wc -l)
+          audio=$(ls app/src/main/assets/audio 2>/dev/null | wc -l)
+          echo "Teks: $pages/604 halaman, audio: $audio/604 klip"
+          if [ "$pages" -ne 604 ] || [ "$audio" -ne 604 ]; then
+            echo "::error::Aset offline belum lengkap. Jalankan dulu workflow 'Generate Assets' (tab Actions), lalu jalankan ulang build ini."
+            exit 1
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build debug APK
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutqin-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      # ---- Rilis bertanda tangan (opsional; butuh 4 GitHub Secrets, lihat README) ----
+      - name: Decode keystore
+        if: env.HAS_KEYSTORE == 'true'
+        run: echo "${{ secrets.MUTQIN_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/mutqin.jks"
+
+      - name: Build signed release APK
+        if: env.HAS_KEYSTORE == 'true'
+        env:
+          MUTQIN_KEYSTORE_PATH: ${{ runner.temp }}/mutqin.jks
+          MUTQIN_KEYSTORE_PASSWORD: ${{ secrets.MUTQIN_KEYSTORE_PASSWORD }}
+          MUTQIN_KEY_ALIAS: ${{ secrets.MUTQIN_KEY_ALIAS }}
+          MUTQIN_KEY_PASSWORD: ${{ secrets.MUTQIN_KEY_PASSWORD }}
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: Upload release APK
+        if: env.HAS_KEYSTORE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutqin-release-apk
+          path: app/build/outputs/apk/release/*.apk
