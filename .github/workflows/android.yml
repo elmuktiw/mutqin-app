@@ -127,16 +127,32 @@ jobs:
         run: gradle :app:assembleRelease --stacktrace
 
       # Menampilkan sidik jari (SHA-1 / SHA-256) kunci penanda tangan APK rilis di halaman Summary run ini.
-      # Nilai ini yang didaftarkan ke Firebase agar login Google berfungsi.
+      # Nilai ini yang didaftarkan ke Firebase agar login Google berfungsi. Langkah ini tidak pernah menggagalkan build.
       - name: Sidik jari tanda tangan APK rilis
+        env:
+          KS_PASS: ${{ secrets.MUTQIN_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.MUTQIN_KEY_ALIAS }}
         run: |
-          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)"
+          set +e
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          APKSIGNER="$(find "$SDK/build-tools" -maxdepth 2 -name apksigner 2>/dev/null | sort -V | tail -1)"
+          APK="$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)"
           {
             echo '### Sidik jari tanda tangan APK rilis'
+            echo "APK: ${APK:-tidak ditemukan}"
+            echo "apksigner: ${APKSIGNER:-tidak ditemukan}"
             echo '```'
-            "$APKSIGNER" verify --print-certs app/build/outputs/apk/release/*.apk \
-              | grep -E "Signer #1 certificate (DN|SHA-256 digest|SHA-1 digest)" || echo "Sidik jari tidak terbaca."
+            if [ -n "$APKSIGNER" ] && [ -n "$APK" ]; then
+              "$APKSIGNER" verify --verbose --print-certs "$APK" 2>&1 | grep -v "^WARNING" | head -40
+            fi
             echo '```'
+            if [ -f "$RUNNER_TEMP/mutqin.jks" ]; then
+              echo '**Dari keystore pribadi (keytool):**'
+              echo '```'
+              keytool -list -v -keystore "$RUNNER_TEMP/mutqin.jks" -alias "$KS_ALIAS" -storepass:env KS_PASS 2>&1 \
+                | grep -E "Alias name|Owner|Valid from|SHA1|SHA256|keytool error"
+              echo '```'
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload release APK
