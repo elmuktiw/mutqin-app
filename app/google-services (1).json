@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "824725394854",
+    "project_id": "mutqin-5dbe6",
+    "storage_bucket": "mutqin-5dbe6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:824725394854:android:c003dca93b72ab3b332b67",
+        "android_client_info": {
+          "package_name": "id.mutqin.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "824725394854-568pf9ebhrl408d1mj9gqfhjs7dmsil9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.mutqin.app",
+            "certificate_hash": "90703d262eaa884526dccce4219a5f0125b209ef"
+          }
+        },
+        {
+          "client_id": "824725394854-98q3d4n0ok480vupbi5abni6taruvntm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.mutqin.app",
+            "certificate_hash": "f34c55bb4895e57399079cf477764e5a45bc6dc5"
+          }
+        },
+        {
+          "client_id": "824725394854-bu9l73p6enp2men9fm0l34qnb58escol.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9VQ_8jYHGBJ1IN0CH2c_0ehdS8i1iDHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "824725394854-bu9l73p6enp2men9fm0l34qnb58escol.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
