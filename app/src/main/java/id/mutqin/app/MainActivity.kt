@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import id.mutqin.app.ui.FirstRunDialog
 import id.mutqin.app.ui.ImportChoiceDialog
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels

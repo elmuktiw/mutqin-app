@@ -587,7 +587,7 @@ fun BackupDialog(vm: MutqinViewModel, onClose: () -> Unit) {
                 val text = withContext(Dispatchers.IO) {
                     runCatching { context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() } }.getOrNull()
                 }
-                status = if (text == null) "Gagal membaca file." to false else prepareResult(vm.prepareImport(text, "File yang Anda pilih", pickedTarget))
+                status = if (text == null) "Gagal membaca file." to false else prepareResult(vm.prepareImport(text, "File yang Anda pilih"))
                 busy = false
             }
         }
